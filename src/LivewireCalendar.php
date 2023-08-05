@@ -3,166 +3,110 @@
 namespace Asantibanez\LivewireCalendar;
 
 use Carbon\Carbon;
+use DateTimeInterface;
 use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
-/**
- * Class LivewireCalendar
- * @package Asantibanez\LivewireCalendar
- * @property Carbon $startsAt
- * @property Carbon $endsAt
- * @property Carbon $gridStartsAt
- * @property Carbon $gridEndsAt
- * @property int $weekStartsAt
- * @property int $weekEndsAt
- * @property string $calendarView
- * @property string $dayView
- * @property string $eventView
- * @property string $dayOfWeekView
- * @property string $beforeCalendarWeekView
- * @property string $afterCalendarWeekView
- * @property string $dragAndDropClasses
- * @property int $pollMillis
- * @property string $pollAction
- * @property boolean $dragAndDropEnabled
- * @property boolean $dayClickEnabled
- * @property boolean $eventClickEnabled
- */
-class LivewireCalendar extends Component
+abstract class LivewireCalendar extends Component
 {
-    public $startsAt;
-    public $endsAt;
+    #[Locked]
+    public Carbon $startsAt;
 
-    public $gridStartsAt;
-    public $gridEndsAt;
+    #[Locked]
+    public Carbon $endsAt;
 
-    public $weekStartsAt;
-    public $weekEndsAt;
+    #[Locked]
+    public Carbon $gridStartsAt;
 
-    public $calendarView;
-    public $dayView;
-    public $eventView;
-    public $dayOfWeekView;
+    #[Locked]
+    public Carbon $gridEndsAt;
 
-    public $dragAndDropClasses;
+    #[Locked]
+    public int $weekStartsAt = Carbon::SUNDAY;
 
-    public $beforeCalendarView;
-    public $afterCalendarView;
+    #[Locked]
+    public ?string $calendarView = 'livewire-calendar::calendar';
 
-    public $pollMillis;
-    public $pollAction;
+    #[Locked]
+    public ?string $dayView = 'livewire-calendar::day';
 
-    public $dragAndDropEnabled;
-    public $dayClickEnabled;
-    public $eventClickEnabled;
+    #[Locked]
+    public ?string $eventView = 'livewire-calendar::event';
 
-    protected $casts = [
-        'startsAt' => 'date',
-        'endsAt' => 'date',
-        'gridStartsAt' => 'date',
-        'gridEndsAt' => 'date',
-    ];
+    #[Locked]
+    public ?string $dayOfWeekView = 'livewire-calendar::day-of-week';
 
-    public function mount($initialYear = null,
-                          $initialMonth = null,
-                          $weekStartsAt = null,
-                          $calendarView = null,
-                          $dayView = null,
-                          $eventView = null,
-                          $dayOfWeekView = null,
-                          $dragAndDropClasses = null,
-                          $beforeCalendarView = null,
-                          $afterCalendarView = null,
-                          $pollMillis = null,
-                          $pollAction = null,
-                          $dragAndDropEnabled = true,
-                          $dayClickEnabled = true,
-                          $eventClickEnabled = true,
-                          $extras = [])
-    {
-        $this->weekStartsAt = $weekStartsAt ?? Carbon::SUNDAY;
-        $this->weekEndsAt = $this->weekStartsAt == Carbon::SUNDAY
-            ? Carbon::SATURDAY
-            : collect([0,1,2,3,4,5,6])->get($this->weekStartsAt + 6 - 7)
-        ;
+    #[Locked]
+    public ?string $beforeCalendarView = null;
 
-        $initialYear = $initialYear ?? Carbon::today()->year;
-        $initialMonth = $initialMonth ?? Carbon::today()->month;
+    #[Locked]
+    public ?string $afterCalendarView = null;
 
-        $this->startsAt = Carbon::createFromDate($initialYear, $initialMonth, 1)->startOfDay();
-        $this->endsAt = $this->startsAt->clone()->endOfMonth()->startOfDay();
+    #[Locked]
+    public bool|string $poll = false;
 
-        $this->calculateGridStartsEnds();
+    #[Locked]
+    public bool $dragAndDropEnabled = false;
 
-        $this->setupViews($calendarView, $dayView, $eventView, $dayOfWeekView, $beforeCalendarView, $afterCalendarView);
+    #[Locked]
+    public string $dragAndDropClasses = '';
 
-        $this->setupPoll($pollMillis, $pollAction);
+    #[Locked]
+    public bool $dayClickEnabled = false;
 
-        $this->dragAndDropEnabled = $dragAndDropEnabled;
-        $this->dragAndDropClasses = $dragAndDropClasses ?? 'border border-blue-400 border-4';
+    #[Locked]
+    public bool $eventClickEnabled = false;
 
-        $this->dayClickEnabled = $dayClickEnabled;
-        $this->eventClickEnabled = $eventClickEnabled;
+    public function mount(
+        $initialMonth = null,
+        $initialYear = null,
+        $extra = null,
+    ): void {
+        if ($initialYear && $initialMonth) {
+            $this->startsAt = Carbon::createFromDate($initialYear, $initialMonth, 1);
+        } else {
+            $this->startsAt = Carbon::now();
+        }
 
-        $this->afterMount($extras);
+        $this->calculateDates();
+
+        $this->dragAndDropClasses ??= 'border border-blue-400 border-4';
     }
 
-    public function afterMount($extras = [])
-    {
-        //
-    }
-
-    public function setupViews($calendarView = null,
-                               $dayView = null,
-                               $eventView = null,
-                               $dayOfWeekView = null,
-                               $beforeCalendarView = null,
-                               $afterCalendarView = null)
-    {
-        $this->calendarView = $calendarView ?? 'livewire-calendar::calendar';
-        $this->dayView = $dayView ?? 'livewire-calendar::day';
-        $this->eventView = $eventView ?? 'livewire-calendar::event';
-        $this->dayOfWeekView = $dayOfWeekView ?? 'livewire-calendar::day-of-week';
-
-        $this->beforeCalendarView = $beforeCalendarView ?? null;
-        $this->afterCalendarView = $afterCalendarView ?? null;
-    }
-
-    public function setupPoll($pollMillis, $pollAction)
-    {
-        $this->pollMillis = $pollMillis;
-        $this->pollAction = $pollAction;
-    }
-
-    public function goToPreviousMonth()
+    public function goToPreviousMonth(): void
     {
         $this->startsAt->subMonthNoOverflow();
-        $this->endsAt->subMonthNoOverflow();
-
-        $this->calculateGridStartsEnds();
+        $this->calculateDates();
     }
 
-    public function goToNextMonth()
+    public function goToNextMonth(): void
     {
         $this->startsAt->addMonthNoOverflow();
-        $this->endsAt->addMonthNoOverflow();
-
-        $this->calculateGridStartsEnds();
+        $this->calculateDates();
     }
 
-    public function goToCurrentMonth()
+    public function goToMonth(int $month): void
     {
-        $this->startsAt = Carbon::today()->startOfMonth()->startOfDay();
+        $this->startsAt->setMonth($month);
+        $this->calculateDates();
+    }
+
+    public function goToCurrentMonth(): void
+    {
+        $this->startsAt = Carbon::today();
+        $this->calculateDates();
+    }
+
+    protected function calculateDates(): void
+    {
+        $this->startsAt->startOfMonth();
         $this->endsAt = $this->startsAt->clone()->endOfMonth()->startOfDay();
 
-        $this->calculateGridStartsEnds();
-    }
-
-    public function calculateGridStartsEnds()
-    {
         $this->gridStartsAt = $this->startsAt->clone()->startOfWeek($this->weekStartsAt);
         $this->gridEndsAt = $this->endsAt->clone()->endOfWeek($this->weekEndsAt);
     }
@@ -170,7 +114,7 @@ class LivewireCalendar extends Component
     /**
      * @throws Exception
      */
-    public function monthGrid()
+    public function monthGrid(): Collection
     {
         $firstDayOfGrid = $this->gridStartsAt;
         $lastDayOfGrid = $this->gridEndsAt;
@@ -179,31 +123,36 @@ class LivewireCalendar extends Component
         $days = $lastDayOfGrid->diffInDays($firstDayOfGrid) + 1;
 
         if ($days % 7 != 0) {
-            throw new Exception("Livewire Calendar not correctly configured. Check initial inputs.");
+            throw new Exception('Livewire Calendar not correctly configured. Check initial inputs.');
         }
 
         $monthGrid = collect();
         $currentDay = $firstDayOfGrid->clone();
 
-        while(!$currentDay->greaterThan($lastDayOfGrid)) {
+        while (! $currentDay->greaterThan($lastDayOfGrid)) {
             $monthGrid->push($currentDay->clone());
             $currentDay->addDay();
         }
 
         $monthGrid = $monthGrid->chunk(7);
         if ($numbersOfWeeks != $monthGrid->count()) {
-            throw new Exception("Livewire Calendar calculated wrong number of weeks. Sorry :(");
+            throw new Exception('Livewire Calendar calculated wrong number of weeks. Sorry :(');
         }
 
         return $monthGrid;
     }
 
-    public function events() : Collection
+    #[Computed]
+    public function weekEndsAt(): int
     {
-        return collect();
+        return $this->weekStartsAt == Carbon::SUNDAY
+            ? Carbon::SATURDAY
+            : collect([0, 1, 2, 3, 4, 5, 6])->get($this->weekStartsAt + 6 - 7);
     }
 
-    public function getEventsForDay($day, Collection $events) : Collection
+    abstract public function events(): Collection;
+
+    public function getEventsForDay(Carbon|DateTimeInterface|string|null $day, Collection $events): Collection
     {
         return $events
             ->filter(function ($event) use ($day) {
@@ -211,37 +160,36 @@ class LivewireCalendar extends Component
             });
     }
 
-    public function onDayClick($year, $month, $day)
+    public function onDayClick(int $year, int $month, int $day): void
     {
         //
     }
 
-    public function onEventClick($eventId)
+    public function onEventClick(int|string $eventId): void
     {
         //
     }
 
-    public function onEventDropped($eventId, $year, $month, $day)
+    public function onEventDropped(int|string $eventId, int $year, int $month, int $day): void
     {
         //
     }
 
     /**
-     * @return Factory|View
      * @throws Exception
      */
-    public function render()
+    public function render(): Factory|View
     {
         $events = $this->events();
 
         return view($this->calendarView)
             ->with([
-                'componentId' => $this->id,
+                'componentId' => $this->getId(),
                 'monthGrid' => $this->monthGrid(),
                 'events' => $events,
                 'getEventsForDay' => function ($day) use ($events) {
                     return $this->getEventsForDay($day, $events);
-                }
+                },
             ]);
     }
 }

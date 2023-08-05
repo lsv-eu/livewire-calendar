@@ -2,93 +2,89 @@
 
 namespace Asantibanez\LivewireCalendar\Tests;
 
-use Asantibanez\LivewireCalendar\LivewireCalendar;
-use Livewire\LivewireManager;
-use Livewire\Testing\TestableLivewire;
+use Asantibanez\LivewireCalendar\Tests\Support\LivewireCalendarTestComponent;
+use Carbon\CarbonImmutable;
+use Livewire\Livewire;
 
 class LivewireCalendarTest extends TestCase
 {
-    private function createComponent($parameters = []) : TestableLivewire
+    /** @test */
+    public function testCanBuildComponent()
     {
-        return app(LivewireManager::class)->test(LivewireCalendar::class, $parameters);
+        Livewire::test(LivewireCalendarTestComponent::class)->assertStatus(200);
     }
 
-    /** @test */
-    public function can_build_component()
+    public function testInitialDate()
     {
-        //Arrange
-
-        //Act
-        $component = $this->createComponent([]);
-
-        //Assert
-        $this->assertNotNull($component);
+        Livewire::test(LivewireCalendarTestComponent::class, [
+            'initialYear' => 2021,
+            'initialMonth' => 12,
+            'extra' => 'initial',
+        ])
+            ->assertSet('startsAt', CarbonImmutable::create(2021, 12, 1));
     }
 
-    /** @test */
-    public function can_navigate_to_next_month()
+    public function testDayView()
     {
-        //Arrange
-        $component = $this->createComponent([]);
-
-        //Act
-        $component->runAction('goToNextMonth');
-
-        //Assert
-        $this->assertEquals(
-            today()->startOfMonth()->addMonthNoOverflow(),
-            $component->get('startsAt')
-        );
-
-        $this->assertEquals(
-            today()->endOfMonth()->startOfDay()->addMonthNoOverflow(),
-            $component->get('endsAt')
-        );
+        Livewire::test(LivewireCalendarTestComponent::class, [
+            'initialYear' => 2021,
+            'initialMonth' => 12,
+            'extra' => 'initial',
+            'dayView' => 'livewire-calendar-test::blank',
+        ])
+            ->assertSet('dayView', 'livewire-calendar-test::blank');
     }
 
-    /** @test */
-    public function can_navigate_to_previous_month()
+    /**
+     * @depends testInitialDate
+     * @dataProvider getMonths
+     */
+    public function testCanNavigateToNextMonth($month): void
     {
-        //Arrange
-        $component = $this->createComponent([]);
+        $testDate = CarbonImmutable::createFromDate('2020', $month);
 
-        //Act
-        $component->runAction('goToPreviousMonth');
-
-        //Assert
-        $this->assertEquals(
-            today()->startOfMonth()->subMonthNoOverflow(),
-            $component->get('startsAt')
-        );
-
-        $this->assertEquals(
-            today()->endOfMonth()->startOfDay()->subMonthNoOverflow(),
-            $component->get('endsAt')
-        );
+        Livewire::test(LivewireCalendarTestComponent::class, [
+            'initialYear' => $testDate->year,
+            'initialMonth' => $testDate->month,
+            'weekStartsAt' => 1,
+        ])
+            ->call('goToNextMonth')
+            ->assertSet('startsAt', $testDate->addMonthsNoOverflow()->startOfMonth())
+            ->assertSet('endsAt', $testDate->addMonthsNoOverflow()->endOfMonth()->startOfDay());
     }
 
-    /** @test */
-    public function can_navigate_to_current_month()
+    /**
+     * @depends testInitialDate
+     * @dataProvider getMonths
+     */
+    public function testCanNavigateToPreviousMonth($month): void
     {
-        //Arrange
-        $component = $this->createComponent([]);
+        $testDate = CarbonImmutable::createFromDate('2020', $month);
 
-        $component->runAction('goToPreviousMonth');
-        $component->runAction('goToPreviousMonth');
-        $component->runAction('goToPreviousMonth');
+        Livewire::test(LivewireCalendarTestComponent::class, [
+            'initialYear' => $testDate->year,
+            'initialMonth' => $testDate->month,
+            'weekStartsAt' => 1,
+        ])
+            ->call('goToPreviousMonth')
+            ->assertSet('startsAt', $testDate->subMonthsNoOverflow()->startOfMonth())
+            ->assertSet('endsAt', $testDate->subMonthsNoOverflow()->endOfMonth()->startOfDay());
+    }
 
-        //Act
-        $component->runAction('goToCurrentMonth');
+    /** @depends testInitialDate */
+    public function testCanNavigateToCurrentMonth()
+    {
+        Livewire::test(LivewireCalendarTestComponent::class, [
+            'initialYear' => 2021,
+            'initialMonth' => 12,
+            'extra' => 'initial',
+        ])
+            ->call('goToCurrentMonth')
+            ->assertSet('startsAt', now()->startOfMonth());
+    }
 
-        //Assert
-        $this->assertEquals(
-            today()->startOfMonth(),
-            $component->get('startsAt')
-        );
-
-        $this->assertEquals(
-            today()->endOfMonth()->startOfDay(),
-            $component->get('endsAt')
-        );
+    public static function getMonths(): array
+    {
+        return collect(range(1, 12))->mapWithKeys(fn ($item) => [now()->setMonth($item)->monthName => [$item]])->toArray();
     }
 }

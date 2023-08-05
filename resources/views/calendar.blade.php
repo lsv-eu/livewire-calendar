@@ -1,8 +1,6 @@
 <div
-    @if($pollMillis !== null && $pollAction !== null)
-        wire:poll.{{ $pollMillis }}ms="{{ $pollAction }}"
-    @elseif($pollMillis !== null)
-        wire:poll.{{ $pollMillis }}ms
+    @if($poll)
+        wire:poll{{ is_string($poll) ? ".{$poll}" : '' }}
     @endif
 >
     <div>
