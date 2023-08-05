@@ -1,17 +1,19 @@
 {
-    "name": "asantibanez/livewire-calendar",
-    "description": "Laravel Livewire calendar component",
+    "name": "lsv-eu/livewire-calendar",
+    "description": "Laravel Livewire calendar component with Livewire v3",
     "keywords": [
         "asantibanez",
+        "lsv-eu",
+        "little-sane-village",
         "livewire-calendar"
     ],
-    "homepage": "https://github.com/asantibanez/livewire-calendar",
+    "homepage": "https://github.com/lsv-eu/livewire-calendar",
     "license": "MIT",
     "type": "library",
     "authors": [
         {
-            "name": "Andrés Santibáñez",
-            "email": "santibanez.andres@gmail.com",
+            "name": "Leo Lutz",
+            "email": "leo.lutz@lsv.eu",
             "role": "Developer"
         }
     ],
@@ -27,12 +29,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Asantibanez\\LivewireCalendar\\": "src"
+            "LittleSaneVillage\\LivewireCalendar\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Asantibanez\\LivewireCalendar\\Tests\\": "tests"
+            "LittleSaneVillage\\LivewireCalendar\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -46,7 +48,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Asantibanez\\LivewireCalendar\\LivewireCalendarServiceProvider"
+                "LittleSaneVillage\\LivewireCalendar\\LivewireCalendarServiceProvider"
             ]
         }
     }

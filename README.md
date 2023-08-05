@@ -5,14 +5,14 @@ from within the component and will be presented on each day depending on the dat
 
 ## Preview
 
-![preview](https://github.com/asantibanez/livewire-calendar/raw/master/preview.gif)
+![preview](https://github.com/lsv-eu/livewire-calendar/raw/main/preview.gif)
 
 ## Installation
 
 You can install the package via composer:
 
 ```bash
-composer require asantibanez/livewire-calendar
+composer require lsv-eu/livewire-calendar
 ```
 
 ## Requirements
@@ -38,6 +38,8 @@ extend from `LivewireCalendar`. Also, remove the `render` method.
 You'll have a class similar to this snippet.
  
 ``` php
+namespace LittleSaneVillage\LivewireCalendar;
+
 class AppointmentsCalendar extends LivewireCalendar
 {
     //
@@ -117,7 +119,7 @@ Example
 
 This will render a calendar grid.
 
-![example](https://github.com/asantibanez/livewire-calendar/raw/master/example.png)
+![example](https://github.com/lsv-eu/livewire-calendar/raw/main/example.png)
 
 By default, the component will render the current month. If you want to change the
 starting month, you can set the `year` and `month` props.
@@ -264,7 +266,9 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 If you discover any security related issues, please email santibanez.andres@gmail.com instead of using the issue tracker.
 
 ## Credits
-
+- [Leo Lutz](https://github.com/skeemer)
+- [Przemysław](https://github.com/da-sie)
+- [Barry vd. Heuvel](https://github.com/barryvdh)
 - [Andrés Santibáñez](https://github.com/asantibanez)
 - [All Contributors](../../contributors)
 

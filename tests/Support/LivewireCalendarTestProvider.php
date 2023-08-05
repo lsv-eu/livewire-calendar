@@ -1,6 +1,6 @@
 <?php
 
-namespace Asantibanez\LivewireCalendar\Tests\Support;
+namespace LittleSaneVillage\LivewireCalendar\Tests\Support;
 
 use Illuminate\Support\ServiceProvider;
 

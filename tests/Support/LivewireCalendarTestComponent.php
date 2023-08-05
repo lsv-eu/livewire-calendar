@@ -1,8 +1,8 @@
 <?php
 
-namespace Asantibanez\LivewireCalendar\Tests\Support;
+namespace LittleSaneVillage\LivewireCalendar\Tests\Support;
 
-use Asantibanez\LivewireCalendar\LivewireCalendar;
+use LittleSaneVillage\LivewireCalendar\LivewireCalendar;
 use Illuminate\Support\Collection;
 
 class LivewireCalendarTestComponent extends LivewireCalendar

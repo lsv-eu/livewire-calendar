@@ -1,6 +1,6 @@
 <?php
 
-namespace Asantibanez\LivewireCalendar;
+namespace LittleSaneVillage\LivewireCalendar;
 
 use Carbon\Carbon;
 use DateTimeInterface;

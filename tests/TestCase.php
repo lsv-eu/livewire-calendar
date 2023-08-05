@@ -1,9 +1,9 @@
 <?php
 
-namespace Asantibanez\LivewireCalendar\Tests;
+namespace LittleSaneVillage\LivewireCalendar\Tests;
 
-use Asantibanez\LivewireCalendar\LivewireCalendarServiceProvider;
-use Asantibanez\LivewireCalendar\Tests\Support\LivewireCalendarTestProvider;
+use LittleSaneVillage\LivewireCalendar\LivewireCalendarServiceProvider;
+use LittleSaneVillage\LivewireCalendar\Tests\Support\LivewireCalendarTestProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as BaseCase;
 

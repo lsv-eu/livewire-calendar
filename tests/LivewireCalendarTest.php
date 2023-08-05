@@ -1,8 +1,8 @@
 <?php
 
-namespace Asantibanez\LivewireCalendar\Tests;
+namespace LittleSaneVillage\LivewireCalendar\Tests;
 
-use Asantibanez\LivewireCalendar\Tests\Support\LivewireCalendarTestComponent;
+use LittleSaneVillage\LivewireCalendar\Tests\Support\LivewireCalendarTestComponent;
 use Carbon\CarbonImmutable;
 use Livewire\Livewire;
 
