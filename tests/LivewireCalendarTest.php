@@ -2,13 +2,12 @@
 
 namespace LittleSaneVillage\LivewireCalendar\Tests;
 
-use LittleSaneVillage\LivewireCalendar\Tests\Support\LivewireCalendarTestComponent;
 use Carbon\CarbonImmutable;
+use LittleSaneVillage\LivewireCalendar\Tests\Support\LivewireCalendarTestComponent;
 use Livewire\Livewire;
 
 class LivewireCalendarTest extends TestCase
 {
-    /** @test */
     public function testCanBuildComponent()
     {
         Livewire::test(LivewireCalendarTestComponent::class)->assertStatus(200);
@@ -37,6 +36,7 @@ class LivewireCalendarTest extends TestCase
 
     /**
      * @depends testInitialDate
+     *
      * @dataProvider getMonths
      */
     public function testCanNavigateToNextMonth($month): void
@@ -55,6 +55,7 @@ class LivewireCalendarTest extends TestCase
 
     /**
      * @depends testInitialDate
+     *
      * @dataProvider getMonths
      */
     public function testCanNavigateToPreviousMonth($month): void

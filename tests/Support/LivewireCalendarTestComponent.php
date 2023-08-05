@@ -2,8 +2,8 @@
 
 namespace LittleSaneVillage\LivewireCalendar\Tests\Support;
 
-use LittleSaneVillage\LivewireCalendar\LivewireCalendar;
 use Illuminate\Support\Collection;
+use LittleSaneVillage\LivewireCalendar\LivewireCalendar;
 
 class LivewireCalendarTestComponent extends LivewireCalendar
 {
