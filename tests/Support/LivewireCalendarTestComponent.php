@@ -4,9 +4,11 @@ namespace LittleSaneVillage\LivewireCalendar\Tests\Support;
 
 use Illuminate\Support\Collection;
 use LittleSaneVillage\LivewireCalendar\LivewireCalendar;
+use Livewire\Features\SupportComputed\Computed;
 
 class LivewireCalendarTestComponent extends LivewireCalendar
 {
+    #[Computed]
     public function events(): Collection
     {
         return collect([

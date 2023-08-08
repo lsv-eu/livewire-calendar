@@ -12,6 +12,11 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
+/**
+ * @property-read Collection $events
+ * @property-read Collection $monthGrid
+ * @property-read int $weekEndsAt
+ */
 abstract class LivewireCalendar extends Component
 {
     #[Locked]
@@ -114,6 +119,7 @@ abstract class LivewireCalendar extends Component
     /**
      * @throws Exception
      */
+    #[Computed]
     public function monthGrid(): Collection
     {
         $firstDayOfGrid = $this->gridStartsAt;
@@ -150,11 +156,15 @@ abstract class LivewireCalendar extends Component
             : collect([0, 1, 2, 3, 4, 5, 6])->get($this->weekStartsAt + 6 - 7);
     }
 
+    /**
+     * @return Collection<int|string, array>
+     */
+    #[Computed]
     abstract public function events(): Collection;
 
-    public function getEventsForDay(Carbon|DateTimeInterface|string|null $day, Collection $events): Collection
+    public function getEventsForDay(Carbon|DateTimeInterface|string|null $day): Collection
     {
-        return $events
+        return $this->events
             ->filter(function ($event) use ($day) {
                 return Carbon::parse($event['date'])->isSameDay($day);
             });
@@ -180,16 +190,6 @@ abstract class LivewireCalendar extends Component
      */
     public function render(): Factory|View
     {
-        $events = $this->events();
-
-        return view($this->calendarView)
-            ->with([
-                'componentId' => $this->getId(),
-                'monthGrid' => $this->monthGrid(),
-                'events' => $events,
-                'getEventsForDay' => function ($day) use ($events) {
-                    return $this->getEventsForDay($day, $events);
-                },
-            ]);
+        return view($this->calendarView);
     }
 }

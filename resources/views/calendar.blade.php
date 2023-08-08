@@ -12,20 +12,20 @@
             <div class="inline-block min-w-full overflow-hidden">
 
                 <div class="w-full flex flex-row">
-                    @foreach($monthGrid->first() as $day)
+                    @foreach($this->monthGrid->first() as $day)
                         @include($dayOfWeekView, ['day' => $day])
                     @endforeach
                 </div>
 
-                @foreach($monthGrid as $week)
+                @foreach($this->monthGrid as $week)
                     <div class="w-full flex flex-row">
                         @foreach($week as $day)
                             @include($dayView, [
-                                    'componentId' => $componentId,
+                                    'componentId' => $this->getId(),
                                     'day' => $day,
                                     'dayInMonth' => $day->isSameMonth($startsAt),
                                     'isToday' => $day->isToday(),
-                                    'events' => $getEventsForDay($day, $events),
+                                    'events' => $this->getEventsForDay($day),
                                 ])
                         @endforeach
                     </div>
